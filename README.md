@@ -1,3 +1,12 @@
+---
+title: CrowdFlow DNA
+emoji: 🏃
+colorFrom: blue
+colorTo: indigo
+sdk: gradio
+app_file: app.py
+pinned: false
+---
 # CrowdFlow DNA
 
 **Graph-Based Crowd Interaction Modeling for Predictive Risk Classification**

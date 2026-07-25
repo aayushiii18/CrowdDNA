@@ -42,12 +42,16 @@ env/
 data/
 outputs/
 *.log
+*log*.txt
 *.mp4
 *.avi
 *.pt
 *.pth
 *.onnx
 commit_history.txt
+out.txt
+wf.txt
+srd.txt
 
 # Jupyter
 .ipynb_checkpoints

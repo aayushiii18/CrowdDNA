@@ -21,6 +21,7 @@ from crowdflow_dna.errors import CrowdFlowError
 from crowdflow_dna.inference import ModelNotFoundError, UnsupportedModelFormatError
 from crowdflow_dna.pipeline import CrowdFlowPipeline
 from crowdflow_dna.rendering.timeline import TimelineEntry
+from crowdflow_dna.downloader import resolve_model_path
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -123,7 +124,8 @@ def process_video(
     # Attempt to build an inference-mode pipeline when a model path is configured.
     # Fall back to dummy mode gracefully on any loading error.
     inference_active = False
-    model_path = os.environ.get("CROWDDNA_MODEL_PATH")
+    raw_env_path = os.environ.get("CROWDDNA_MODEL_PATH")
+    model_path = resolve_model_path(raw_env_path)
     try:
         pipeline = CrowdFlowPipeline(model_path=model_path)
         inference_active = model_path is not None

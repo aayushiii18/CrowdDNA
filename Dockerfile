@@ -4,7 +4,7 @@ WORKDIR /app
 
 # System dependencies
 RUN apt-get update && apt-get install -y \
-    libgl1-mesa-glx \
+    libgl1 \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
@@ -17,4 +17,4 @@ COPY . .
 ENV GRADIO_SERVER_NAME="0.0.0.0"
 EXPOSE 7860
 
-CMD ["python", "app.py"]
+CMD ["sh", "-c", "GRADIO_SERVER_PORT=${PORT:-7860} python app.py"]

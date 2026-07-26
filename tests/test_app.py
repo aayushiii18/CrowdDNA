@@ -69,10 +69,10 @@ def test_process_video_success_returns_video_path(mock_frames_to_vid, mock_pipel
     assert out_video == "success_vid.mp4"
 
 
-@patch("app.os.environ.get", return_value=None)
+@patch("app.resolve_model_path", return_value=None)
 @patch("app.CrowdFlowPipeline")
 @patch("app._frames_to_video")
-def test_process_video_success_status_contains_ok(mock_frames_to_vid, mock_pipeline_cls, _mock_env) -> None:
+def test_process_video_success_status_contains_ok(mock_frames_to_vid, mock_pipeline_cls, mock_resolve) -> None:
     """On success with no model configured, status must indicate dummy mode."""
     mock_pipeline_cls.return_value.run.return_value = PipelineResult(
         annotated_frames=[np.zeros((10, 10, 3), dtype=np.uint8)]

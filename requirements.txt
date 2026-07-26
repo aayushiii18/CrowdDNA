@@ -19,6 +19,7 @@ onnx==1.15.0
 onnxruntime==1.17.1
 
 # Web App & Visualization
+fastapi==0.109.2
 gradio==4.21.0
 huggingface-hub<0.24.0  # Required by gradio 4.21.0
 matplotlib==3.8.3

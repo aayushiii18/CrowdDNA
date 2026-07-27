@@ -20,6 +20,8 @@ onnxruntime==1.17.1
 
 # Web App & Visualization
 fastapi==0.109.2
+# pydantic >= 2.8 generates boolean JSON schemas (e.g., additionalProperties: True) which crash gradio_client < 0.16 during /info schema translation.
+pydantic==2.4.2
 # gradio 4.25.0 is required. gradio_client < 0.14 (bundled in 4.21.0) crashes on Pydantic v2 boolean OpenAPI schemas when querying /info
 gradio==4.25.0
 huggingface-hub<0.24.0  # Required by gradio 4.21.0

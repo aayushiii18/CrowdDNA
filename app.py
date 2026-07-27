@@ -214,4 +214,8 @@ with gr.Blocks(title="CrowdFlow DNA — Crowd Risk Analyser") as demo:
     )
 
 if __name__ == "__main__":
+    # queue() must be called before launch() to enable Gradio's SSE-based
+    # real-time streaming. Without it Render's reverse proxy drops the
+    # long-lived /queue/join connection with a 502 before inference completes.
+    demo.queue()
     demo.launch()

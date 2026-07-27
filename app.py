@@ -219,18 +219,33 @@ if __name__ == "__main__":
     # long-lived /queue/join connection with a 502 before inference completes.
     demo.queue()
 
-    # Render's nginx proxy buffers SSE responses by default, which causes
-    # /queue/join and /heartbeat to return 502 (Bad Gateway) mid-inference.
-    # Setting X-Accel-Buffering: no on every response disables nginx buffering
-    # and keeps the SSE stream alive for the full duration of inference.
-    app = demo.app
+    # WHY THIS PATCH IS NEEDED
+    # demo.launch() calls http_server.start_server() which calls App.create_app()
+    # to create a BRAND NEW FastAPI app instance. Any middleware added to demo.app
+    # before launch() is discarded because uvicorn runs the new app, not demo.app.
+    #
+    # FIX: Patch App.create_app to inject X-Accel-Buffering middleware into every
+    # app it creates. This header instructs Render's nginx to disable response
+    # buffering, keeping the SSE /queue/join and /heartbeat streams alive through
+    # the full duration of inference instead of getting cut off with 502.
+    from gradio.routes import App
     from starlette.middleware.base import BaseHTTPMiddleware
 
-    class DisableNginxBuffering(BaseHTTPMiddleware):
-        async def dispatch(self, request, call_next):
-            response = await call_next(request)
-            response.headers["X-Accel-Buffering"] = "no"
-            return response
+    _original_create_app = App.create_app.__func__  # unwrap staticmethod
 
-    app.add_middleware(DisableNginxBuffering)
+    @staticmethod  # type: ignore[misc]
+    def _patched_create_app(blocks, app_kwargs=None, auth_dependency=None):
+        app = _original_create_app(blocks, app_kwargs=app_kwargs, auth_dependency=auth_dependency)
+
+        class DisableNginxBuffering(BaseHTTPMiddleware):
+            async def dispatch(self, request, call_next):
+                response = await call_next(request)
+                response.headers["X-Accel-Buffering"] = "no"
+                return response
+
+        app.add_middleware(DisableNginxBuffering)
+        return app
+
+    App.create_app = _patched_create_app
+
     demo.launch()

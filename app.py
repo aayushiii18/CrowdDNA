@@ -218,4 +218,19 @@ if __name__ == "__main__":
     # real-time streaming. Without it Render's reverse proxy drops the
     # long-lived /queue/join connection with a 502 before inference completes.
     demo.queue()
+
+    # Render's nginx proxy buffers SSE responses by default, which causes
+    # /queue/join and /heartbeat to return 502 (Bad Gateway) mid-inference.
+    # Setting X-Accel-Buffering: no on every response disables nginx buffering
+    # and keeps the SSE stream alive for the full duration of inference.
+    app = demo.app
+    from starlette.middleware.base import BaseHTTPMiddleware
+
+    class DisableNginxBuffering(BaseHTTPMiddleware):
+        async def dispatch(self, request, call_next):
+            response = await call_next(request)
+            response.headers["X-Accel-Buffering"] = "no"
+            return response
+
+    app.add_middleware(DisableNginxBuffering)
     demo.launch()

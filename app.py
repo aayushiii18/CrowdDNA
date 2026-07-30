@@ -231,9 +231,8 @@ if __name__ == "__main__":
     from gradio.routes import App
     from starlette.middleware.base import BaseHTTPMiddleware
 
-    _original_create_app = App.create_app.__func__  # unwrap staticmethod
+    _original_create_app = App.create_app
 
-    @staticmethod  # type: ignore[misc]
     def _patched_create_app(blocks, app_kwargs=None, auth_dependency=None):
         app = _original_create_app(blocks, app_kwargs=app_kwargs, auth_dependency=auth_dependency)
 

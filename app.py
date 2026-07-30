@@ -236,6 +236,11 @@ if __name__ == "__main__":
     def _patched_create_app(blocks, app_kwargs=None, auth_dependency=None):
         app = _original_create_app(blocks, app_kwargs=app_kwargs, auth_dependency=auth_dependency)
 
+        class LoggingMiddleware(BaseHTTPMiddleware):
+            async def dispatch(self, request, call_next):
+                print(f"[REQ] {request.method} {request.url.path}", flush=True)
+                return await call_next(request)
+
         class DisableNginxBuffering(BaseHTTPMiddleware):
             async def dispatch(self, request, call_next):
                 response = await call_next(request)
@@ -243,6 +248,7 @@ if __name__ == "__main__":
                 return response
 
         app.add_middleware(DisableNginxBuffering)
+        app.add_middleware(LoggingMiddleware)
         return app
 
     App.create_app = _patched_create_app
